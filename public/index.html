@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anonym Chat</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background-color: #dcdcdc;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 450px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background-color: #fff;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background-color: #075e54;
+      color: white;
+      padding: 16px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-messages {
+      flex-grow: 1;
+      padding: 15px;
+      overflow-y: auto;
+      background-color: #e5ddd5;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-footer {
+      display: flex;
+      padding: 15px;
+      background-color: #f0f0f0;
+      align-items: center;
+      border-top: 1px solid #ddd;
+    }
+
+    .chat-footer input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #ccc;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .chat-footer input:focus {
+      border-color: #075e54;
+      background-color: #fff;
+    }
+
+    .chat-footer button {
+      background-color: #075e54;
+      color: white;
+      border: none;
+      padding: 12px 16px;
+      margin-left: 10px;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .chat-footer button:hover {
+      background-color: #064c44;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background-color: #ccc;
+      border-radius: 10px;
+    }
+
+    .message {
+      max-width: 70%;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 16px;
+      word-wrap: break-word;
+    }
+
+    .message.you {
+      margin-left: auto;
+      background-color: #dcf8c6;
+      text-align: right;
+    }
+
+    .message.x {
+      margin-right: auto;
+      background-color: #fff;
+      text-align: left;
+      border: 1px solid #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <span>X</span>
+      <span>Online</span>
+    </div>
+    <div class="chat-messages">
+      <!-- Chat messages will appear here -->
+    </div>
+    <div class="chat-footer">
+      <input type="text" placeholder="Type a message..." />
+      <button>&#9658;</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script>
+    const socket = io();
+
+    const messageInput = document.querySelector(".chat-footer input");
+    const sendButton = document.querySelector(".chat-footer button");
+    const chatMessages = document.querySelector(".chat-messages");
+
+    // Send message to server
+    sendButton.addEventListener("click", () => {
+      const message = messageInput.value.trim();
+      if (message) {
+        appendMessage("You", message, "you");
+        socket.emit("sendMessage", message);
+        messageInput.value = "";
+      }
+    });
+
+    // Receive message from the server
+    socket.on("receiveMessage", (message) => {
+      appendMessage("X", message, "x");
+    });
+
+    // Append a message to the chat
+    function appendMessage(sender, message, className) {
+      const messageElement = document.createElement("div");
+      messageElement.className = `message ${className}`;
+      messageElement.textContent = `${sender}: ${message}`;
+      chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  </script>
+</body>
+</html>
